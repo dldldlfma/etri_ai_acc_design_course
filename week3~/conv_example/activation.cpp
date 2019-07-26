@@ -1,8 +1,5 @@
 #include "common.hpp"
 
-#define RELU 0
-#define SIGMOID 1
-
 double activation(double a, int sel=RELU) {
     if(sel==RELU){
         return (a > 0) ? a : 0;
