@@ -11,7 +11,7 @@ class Conv
 		void weight_init();
 		Mat3D forward(Mat3D input_img);
 
-		Conv(int in_c, int out_c, int f_size, int stride=1, int padding=1);
+		Conv(int in_c, int out_c, int f_size, int stride=1, int padding=0);
 
 };
 
