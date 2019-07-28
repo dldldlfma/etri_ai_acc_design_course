@@ -1,7 +1,50 @@
 #include "common.hpp"
+#include <vector>
+
+using namespace std;
+
 
 cv::Mat Padding2D(cv::Mat A, int padding);
 cv::Mat Conv2D(cv::Mat A, cv::Mat F, int padding, int stride);
+
+class Conv
+{
+	public:
+		int in_channel;
+		int out_channel;
+        int f_size=3;
+		int stride=1;
+		int padding=0;
+		Mat4D weight;
+
+		void weight_init();
+		Mat3D forward(Mat3D input_img);
+
+		Conv(int in_c, int out_c, int f_size, int stride=1, int padding=1);
+
+};
+
+Conv::Conv(int in_c, int out_c, int f_size, int stride, int padding){
+			this->in_channel=in_c;
+			this->out_channel=out_c;
+			this->f_size=f_size;
+			this->stride = stride;
+			this->padding = padding;
+			this->weight_init();
+}
+
+void Conv::weight_init(){
+	this->weight = Mat4D(this->out_channel);
+}
+
+Mat3D Conv::forward(Mat3D input_img){
+	Mat3D output_img(this->out_channel);
+	
+
+	return output_img;
+}
+
+
 
 
 cv::Mat Conv2D(cv::Mat A, cv::Mat F, int padding, int stride) {
@@ -61,3 +104,6 @@ cv::Mat Padding2D(cv::Mat A, int padding) {
     }
     return A_padding;
 }
+
+
+

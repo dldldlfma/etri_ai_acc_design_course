@@ -1,2 +1,2 @@
-g++ lenet.cpp -o lenet `pkg-config --libs opencv`
+g++ main.cpp -o lenet `pkg-config --libs opencv`
 
