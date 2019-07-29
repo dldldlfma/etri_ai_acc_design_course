@@ -2,108 +2,141 @@
 #include "conv.hpp"
 #include "pool.hpp"
 #include "activation.hpp"
+#include "fc.hpp"
+#include <vector>
+
 using namespace std;
 using namespace cv;
+
+
+
+//func declation 
+Mat3D input_init(Mat img);
+void Mat_check(Mat3D A);
+Mat1D view(Mat3D A);
 
 int main()
 {
 
     cout << "Hello OpenCV " << CV_VERSION << endl;
-    clock_t begin, end;
+	cv::Mat img;
+	img = cv::imread("car.jpg");
 
-    cv::Mat img;
-    img = cv::imread("car.jpg");
+	if(img.empty()){
+		cout<< "Image load failed!"<<endl;
+		return -1;
+	}
 
-    if (img.empty()) {
-        cout << "Image load failed!" << endl;
-        return -1;
-    }
+//------------------Init funciton test---------------------------
 
-    int padding = 1;
-    int stride = 1;
-    cv::Mat img_padding;
+	Mat3D init_val = input_init(img);
+	//cout<<"init_val.channel :"<<init_val.size()<<endl;
 
-    cv::Mat bgr[3];
-    cv::Mat padding_bgr[3];
+	Mat3D mnist_input_test;
+	mnist_input_test.push_back(cv::Mat::zeros(32,32,CV_32F));
 
-    cv::split(img, bgr);
+	Mat bgr[3];
 
-    //----------------------------Filter Define-----------------------------------//
-    double edge[] = {-1,-1,-1, -1,8,-1, -1,-1,-1};
-    double edge5x5[] = { 0,0,-3,0,0,
-                         0,0,0,0,0,
-                         -3,0,12,0,-3,
-                         0,0,0,0,0,
-                         0,0,-3,0,0
-                        };
+	
+	for(int i=0; i<init_val.size(); i++){
+		init_val[i].copyTo(bgr[i]);
+		//cout<<i<<" : "<< bgr[i].size()<<endl;
+	}
+	Mat merge_mat;
 
- 
-
-    double blur[] = { 0.0625, 0.125, 0.0625,
-    0.125, 0.25, 0.125,
-    0.0625, 0.125, 0.0625 };
-
-    double blur5x5[] = { 
-        0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625,
-        0.015625, 0.0625, 0.09375, 0.0625, 0.015625,
-        0.0234375, 0.09375, 0.140625, 0.09375, 0.0234375,
-        0.015625, 0.0625, 0.09375, 0.0625, 0.015625,
-        0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625 };
-
-    cv::Mat edge_filter(3, 3, CV_64F, edge);
-    cv::Mat edge_5x5_filter(5, 5, CV_64F, edge5x5);
-    cv::Mat blur_filter(3, 3, CV_64F, blur);
-    cv::Mat blur5x5_filter(5, 5, CV_64F, blur5x5);
-
-    //---------------------OpenCV filter2D----------------------------------//
-    cv::Mat test;
-    begin = clock();
-    cv::filter2D(img,test,-1,edge_filter,cv::Point(-1,-1),(0.0),4);
-    end = clock();
-    printf("OpenCV conv time : %.3lf sec\n", (double)(end - begin)/CLOCKS_PER_SEC);
+	cv::merge(bgr, 3, merge_mat);
+	//cout<<merge_mat.channels()<<endl;
+	
 
 
-    
-    //-----------------------Convolution-----------------------------------//
-    for (int i = 0; i < sizeof(bgr) / sizeof(bgr[0]); i++) {
-        begin = clock();
-        padding_bgr[i] = Conv2D(bgr[i], edge_filter, padding, stride);
-        end = clock();
-        printf("conv time : %.3lf sec\n", (double)(end - begin)/CLOCKS_PER_SEC);
+	img.convertTo(img, CV_32F);
+	img = (img -0.5)/255;
 
-    }
 
-    //-------------------------Pooling-------------------------------------//
-    cv::Mat Pool;
-    begin = clock();
-    Pool = Max_Pool2D(padding_bgr[0], 2);
-    end = clock();
-    printf("Pooling time : %.3lf sec\n", (double)(end - begin)/CLOCKS_PER_SEC);
-    
-    //-------------------------Merge-------------------------------------//
-    cv::merge(bgr, 3, img);
-    cv::merge(padding_bgr, 3, img_padding);
+	//imshow("origin", img);
+	//imshow("after", merge_mat);
+	//waitKey(0);
 
-	//-----------------------_TEST--------------------------------------//
+//--------------layer define-----------------------------------
+	Conv conv1(1,6,5);
+	Pool pool1(2);
+	Conv conv2(6,16,5);
+	Pool pool2(2);
+	Fc fc1(400, 84);
+	Fc fc2(84, 10);
 
-	Mat bgr_result[3];
-	Mat result = test-img_padding;
+	//------------- layer check-------------------------
+	/*
+	cout<<conv1.weight.size()<<endl;
+	for(int i=0; i<conv1.weight.size(); i++){
+		cout<<i<<" : "<<conv1.weight[i].size()<<endl;
+		for(int j=0; j<conv1.weight[i].size(); j++){
+			cout<<conv1.weight[i][j].size()<<endl;
+		}
+	}
+	cout<<endl;
+	*/
 
-    //-------------------------Image Show---------------------------------//
-    cv::imshow("image", img);
-    cv::imshow("image_conv&padding", img_padding);
-    cv::imshow("opencv_filter",test);
+	Mat3D conv1_out = conv1.forward(mnist_input_test);
+	Mat_check(conv1_out);
 
-    //cv::imshow("single_channels", bgr[0]);
-	cv::imshow("result",result);
-    //cv::imshow("pool", Pool);
+	Mat3D pool1_out = pool1.forward(conv1_out);
+	Mat_check(pool1_out);
 
-    //------------------------Image Write--------------------------------//
-    cv::imwrite("./paddding.jpg", img_padding);
-    cv::imwrite("./filtering.jpg", padding_bgr[0]);
-    cv::imwrite("./pool.jpg", Pool);
+	Mat3D conv2_out = conv2.forward(pool1_out);
+	Mat_check(conv2_out);
 
-    cv::waitKey(0);
+	Mat3D pool2_out = pool2.forward(conv2_out);
+	Mat_check(pool2_out);
+
+	Mat1D flatten_out = view(pool2_out);
+	cout<<flatten_out.size()<<endl;
+
+	Mat1D fc1_out = fc1.forward(flatten_out);
+	cout<<fc1_out.size()<<endl;
+
+	Mat1D fc2_out = fc2.forward(fc1_out);
+	cout<<fc2_out.size()<<endl;
+
+
     return 0;
 
 }
+
+Mat1D view(Mat3D A){
+	Mat1D out;
+	for(int i=0; i<A.size(); i++){
+		for(int j=0; j<A[0].size().height; j++){
+			for(int k=0; k<A[0].size().width; k++){
+				out.push_back(A[i].at<float>(j,k));
+			}
+		}
+	}
+	return out;
+}
+
+Mat3D input_init(Mat img){
+	img.convertTo(img,CV_32F);
+	img = (img -0.5) / 255;
+
+	Mat input_img[3];
+	cv::split(img, input_img);
+	Mat3D out;
+	//cout<<img.channels()<<endl;
+
+	//img.channels will return Matrix channels
+	if(img.channels()>1){
+		for(int i=0; i<img.channels(); i++){
+			out.push_back(input_img[i]);
+		}
+	}
+
+
+	//cout<<out.size()<<endl;
+	return out;
+}
+
+void Mat_check(Mat3D A){
+	cout<<A.size()<<" x "<<A[0].size()<<endl;
+}
+

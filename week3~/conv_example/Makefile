@@ -1,8 +1,10 @@
-LIBS=`pkg-config --libs opencv`
-OBJS = conv.o pool.o activation.o
+LIBS=`pkg-config --cflags --libs opencv`
+#LIBS=`pkg-config --cflags --libs opencv4`
 
-lenet: conv.o pool.o activation.o main.o
-	g++ -o lenet conv.o pool.o activation.o main.o $(LIBS)
+OBJS = conv.o pool.o activation.o fc.o main.o
+
+lenet: $(OBJS)
+	g++ -o lenet $(OBJS) $(LIBS)
 
 main.o: main.cpp
 	g++ -c main.cpp $(LIBS)
@@ -16,6 +18,8 @@ pool.o: pool.cpp
 activation.o: activation.cpp
 	g++ -c activation.cpp $(LIBS)
 
+fc.o: fc.cpp
+	g++ -c fc.cpp $(LIBS)
 
 clean:
 	rm -rf lenet
