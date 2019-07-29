@@ -16,14 +16,14 @@ class Conv
 		int stride;
 		int padding;
 		Mat4D weight;
+		Mat1D bias;
 
 		void weight_init();
 		Mat3D forward(Mat3D input_img);
 		cv::Mat init_Mat();
+		void weight_load(FILE* fp);
 
 		Conv(int in_c, int out_c, int f_size, int stride=1, int padding=0);
-
-
 };
 
 Conv::Conv(int in_c, int out_c, int f_size, int stride, int padding){
@@ -42,10 +42,24 @@ void Conv::weight_init(){
 	//cout<<weight.size()<<endl;
 	for(int i=0; i< this->out_channel; i++){
 		this->weight[i] = Mat3D(this->in_channel);
+		this->bias.push_back((float)(rand() / (float(RAND_MAX))) -0.5);
 		for(int j=0; j<this->in_channel; j++){
 			this->weight[i][j].push_back(this->init_Mat());
 		}
 	}
+}
+
+void Conv::weight_load(FILE* fp){
+	for(int i=0; i<out_channel; i++){
+		for(int j=0; j<in_channel; j++){
+			for(int k=0; k<f_size; k++){
+				for(int l=0; l<f_size; l++){
+					this->weight[i][j].at<float>(k,l) = fscanf(fp,"%f \n");
+				}
+			}
+		}
+	}
+	
 }
 
 
@@ -60,6 +74,7 @@ Mat3D Conv::forward(Mat3D in_mat){
 		for(int i_c=0; i_c<this->in_channel; i_c++){
 			sum_mat += Conv2D(in_mat[i_c], this->weight[o_c][i_c], this->padding, this->stride, o_height, o_width);
 		}
+		sum_mat = sum_mat + this->bias[o_c];
 		output_mat.push_back(sum_mat);
 	}
 	return output_mat;

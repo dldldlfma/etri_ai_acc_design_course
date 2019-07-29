@@ -33,7 +33,7 @@ int main()
 	//cout<<"init_val.channel :"<<init_val.size()<<endl;
 
 	Mat3D mnist_input_test;
-	mnist_input_test.push_back(cv::Mat::zeros(32,32,CV_32F));
+	mnist_input_test.push_back(cv::Mat::zeros(28,28,CV_32F));
 
 	Mat bgr[3];
 
@@ -62,7 +62,7 @@ int main()
 	Pool pool1(2);
 	Conv conv2(6,16,5);
 	Pool pool2(2);
-	Fc fc1(400, 84);
+	Fc fc1(256, 84);
 	Fc fc2(84, 10);
 
 	//------------- layer check-------------------------
@@ -139,4 +139,3 @@ Mat3D input_init(Mat img){
 void Mat_check(Mat3D A){
 	cout<<A.size()<<" x "<<A[0].size()<<endl;
 }
-
