@@ -66,11 +66,19 @@ optimizer = torch.optim.Adam(model.parameters(), lr = 0.002)
 total_batch = len(data_loader)
 training_epochs=15
 
+
 for epoch in range(training_epochs):
     avg_cost=0
     for X, Y in data_loader:
         optimizer.zero_grad()
         print(X[0].shape)
+        f = open("test_data.txt","w")
+        for i in range(28):
+            for j in range(28):
+                data="{}\n".format(X[0][0][i][j])
+                f.write(data)
+        print(Y[0])
+        break
         hypothesis = model(X)
 
         cost = criterion(hypothesis, Y)
@@ -79,12 +87,13 @@ for epoch in range(training_epochs):
 
         avg_cost += cost / total_batch
     print('[Epoch:{}] cost = {}'.format(epoch+1, avg_cost))
+    break
 print('Learning Finish!')
 
-torch.save(model.state_dict(), "./model/mnist_weight.pth")
+#torch.save(model.state_dict(), "./model/mnist_weight.pth")
 
-new_net = Net()
-new_net.load_state_dict(torch.load("./model/mnist_weight.pth"))
+#new_net = Net()
+#new_net.load_state_dict(torch.load("./model/mnist_weight.pth"))
 
 
 

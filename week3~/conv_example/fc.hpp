@@ -11,8 +11,9 @@ class Fc
         Mat1D bias;
         Fc(int input_size, int output_size);
         //~Fc();
-        Mat1D forward(Mat1D in_mat);
+        Mat1D forward(Mat1D in_mat, int activation=0);
         void init_weight();
-        void weight_set(FILE* fp);
+        void weight_load(char* path);
+		void bias_load(char* path);
 
 };

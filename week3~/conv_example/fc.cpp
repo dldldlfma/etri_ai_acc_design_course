@@ -11,9 +11,10 @@ class Fc
         Mat1D bias;
         Fc(int input_size, int output_size);
         //~Fc();
-        Mat1D forward(Mat1D in_mat);
+        Mat1D forward(Mat1D in_mat, int activation);
         void init_weight();
-        void weight_set(FILE* fp);
+        void weight_load(char* path);
+		void bias_load(char* path);
 
 };
 
@@ -23,7 +24,7 @@ Fc::Fc(int in_size, int out_size){
     init_weight();
 }
 
-Mat1D Fc::forward(Mat1D in_mat){
+Mat1D Fc::forward(Mat1D in_mat,int activation){
     Mat1D out;
     for(int i=0; i<this->weight.size(); i++){
         float sum=0;
@@ -31,6 +32,11 @@ Mat1D Fc::forward(Mat1D in_mat){
             sum += in_mat[j]*this->weight[i][j];
         }
         sum += bias[i];
+		if(activation == RELU){
+			if(sum<0){
+				sum=0;
+			}
+		}
         out.push_back(sum);
     }
     return out;
@@ -52,3 +58,26 @@ void Fc::init_weight(){
 		}
 	}
 }	
+
+
+void Fc::weight_load(char* path){
+	FILE* fp = fopen(path,"r");
+	double val;
+	for(int i=0; i<this->output_size; i++){
+		for(int j=0; j<this->input_size; j++){
+			fscanf(fp,"%lf\n",&val);
+			this->weight[i][j] = (float)val;
+		}
+	}
+	fclose(fp);
+}
+
+void Fc::bias_load(char* path){
+	FILE* fp = fopen(path,"r");
+	double val;
+	for(int i=0; i<this->output_size; i++){
+		fscanf(fp,"%lf\n",&val);
+		this->bias[i] =(float)val;
+	}
+	fclose(fp);
+}

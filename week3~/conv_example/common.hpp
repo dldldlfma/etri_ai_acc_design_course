@@ -7,8 +7,8 @@
 
 using namespace std;
 
-#define RELU 0
-#define SIGMOID 1
+#define RELU 1
+#define SIGMOID 0
 
 //-----------------------------
 typedef vector<float> Mat1D;

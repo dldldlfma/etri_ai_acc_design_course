@@ -21,7 +21,8 @@ class Conv
 		void weight_init();
 		Mat3D forward(Mat3D input_img);
 		cv::Mat init_Mat();
-		void weight_load(FILE* fp);
+		void weight_load(char* path);
+		void bias_load(char* path);
 
 		Conv(int in_c, int out_c, int f_size, int stride=1, int padding=0);
 };
@@ -49,17 +50,30 @@ void Conv::weight_init(){
 	}
 }
 
-void Conv::weight_load(FILE* fp){
+void Conv::weight_load(char* path){
+	FILE* fp = fopen(path,"r");
 	for(int i=0; i<out_channel; i++){
 		for(int j=0; j<in_channel; j++){
 			for(int k=0; k<f_size; k++){
 				for(int l=0; l<f_size; l++){
-					this->weight[i][j].at<float>(k,l) = fscanf(fp,"%f \n");
+					double val;
+					fscanf(fp,"%lf\n",&val);
+					this->weight[i][j].at<float>(k,l) = (float)val;
 				}
 			}
 		}
 	}
-	
+	fclose(fp);
+}
+
+void Conv::bias_load(char* path){
+	FILE*fp = fopen(path,"r");
+	double val;
+	for(int i=0; i<this->out_channel; i++){
+		fscanf(fp,"%lf\n",&val);
+		this->bias[i] = (float)val;
+	}
+
 }
 
 
@@ -127,10 +141,7 @@ cv::Mat Conv2D(cv::Mat A, cv::Mat F, int padding, int stride, int o_h, int o_w) 
                     out += result;
                 }
             }
-			if(out>255){
-				out=255;
-			}
-            else if(out<0){
+			if(out<0){
                 out=0;
             }
             o_Mat.at<float>(h, w) = (float)out;
