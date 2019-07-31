@@ -34,7 +34,7 @@ int main()
 
 	Mat3D mnist_input_test;
 	mnist_input_test.push_back(cv::Mat::zeros(28,28,CV_32F));
-	FILE* file = fopen("./3.txt","r");
+	FILE* file = fopen("./7.txt","r");
 	double val=0;
 	for(int i=0; i<28; i++){
 		for(int j=0; j<28; j++){
@@ -139,9 +139,20 @@ int main()
 	cout<<fc2_out.size()<<endl;
 	
 	cout<<endl;
+	float sum = 0;
 	for(int i=0; i<fc2_out.size(); i++){
 		cout<<fc2_out[i]<<endl;
+		sum += exp(fc2_out[i]);
 	}
+	cout<<sum<<endl;
+	cout<<endl;
+
+	//softmax
+	for(int i=0; i<fc2_out.size(); i++){
+		cout<<exp(fc2_out[i])/sum<<endl;
+	}
+
+
 
 	cv::imshow("num",mnist_input_test[0]);
 	cv::waitKey(0);
