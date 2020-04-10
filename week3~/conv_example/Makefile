@@ -1,5 +1,5 @@
-LIBS=`pkg-config --cflags --libs opencv`
-#LIBS=`pkg-config --cflags --libs opencv4`
+#LIBS=`pkg-config --cflags --libs opencv`
+LIBS=`pkg-config --cflags --libs opencv4`
 
 OBJS = conv.o pool.o activation.o fc.o main.o
 
