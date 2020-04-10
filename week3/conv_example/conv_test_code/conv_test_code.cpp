@@ -1,8 +1,5 @@
-#include "common.hpp"
-#include "conv.hpp"
-#include "pool.hpp"
-#include "activation.hpp"
-#include "fc.hpp"
+#include "../common.hpp"
+#include "../conv.hpp"
 #include <vector>
 
 using namespace std;
@@ -33,41 +30,18 @@ int main(int argc, char* argv[])
 	}
 	fclose(file);
 
-
 //--------------layer define-----------------------------------
-	Conv conv1(1,6,5);
-	Pool pool1(2);
-	Conv conv2(6,16,5);
-	Pool pool2(2);
-	Fc fc1(256, 84);
-	Fc fc2(84, 10);
-
+	Conv conv1(1,6,5); // Conv(channel, num_of_filter, filter_size, stride=1, padding=0)
+	
 	//cout<<"conv1 load"<<endl;
-	char* fp ="./pytorch/conv1_weight.txt";
+	char* fp ="../pytorch/conv1_weight.txt";
 	conv1.weight_load(fp);
 
-	fp ="./pytorch/conv1_bias.txt";
+	fp ="../pytorch/conv1_bias.txt";
 	conv1.bias_load(fp);
 	//cout<<endl;
 
-	//cout<<"conv2 load"<<endl;
-	fp ="./pytorch/conv2_weight.txt";
-	conv2.weight_load(fp);
-
-	fp ="./pytorch/conv2_bias.txt";
-	conv2.bias_load(fp);
-	//cout<<endl;
-
-	//cout<<"fc1 load"<<endl;
-	fp="./pytorch/fc1_weight.txt";
-	fc1.weight_load(fp);
-
-	//cout<<endl<<endl;
-	//cout<<"fc2 load"<<endl;
-	fp="./pytorch/fc2_weight.txt";
-	fc2.weight_load(fp);
-
-
+	
 	//------------- layer check-------------------------
 	/*
 	cout<<conv1.weight.size()<<endl;
@@ -81,41 +55,17 @@ int main(int argc, char* argv[])
 	*/
 
 	Mat3D conv1_out = conv1.forward(mnist_input_test);
-	//Mat_check(conv1_out);
-	Mat3D pool1_out = pool1.forward(conv1_out);
-	//Mat_check(pool1_out);
-	Mat3D conv2_out = conv2.forward(pool1_out);
-	//Mat_check(conv2_out);
-	Mat3D pool2_out = pool2.forward(conv2_out);
-	//Mat_check(pool2_out);
-	Mat1D flatten_out = view(pool2_out);
-	//cout<<flatten_out.size()<<endl;
-	Mat1D fc1_out = fc1.forward(flatten_out,RELU);
-	//cout<<fc1_out.size()<<endl;
-	Mat1D fc2_out = fc2.forward(fc1_out);
-	//cout<<fc2_out.size()<<endl;
-	
-	cout<<endl;
-	float sum = 0;
-	for(int i=0; i<fc2_out.size(); i++){
-		//cout<<fc2_out[i]<<endl;
-		sum += exp(fc2_out[i]);
-	}
-	//cout<<sum<<endl;
-	//cout<<endl;
+	Mat_check(conv1_out);
 
-	//softmax
-	cout<<"Test number : " <<argv[1]<<endl;
-	for(int i=0; i<fc2_out.size(); i++){
-		cout<<i<<" : "<<exp(fc2_out[i])/sum<<endl;
-	}
+    Mat1D result = view(conv1_out);
 
+    file = fopen("./conv_result.txt","w");
 
-
-	//cv::imshow("num",mnist_input_test[0]);
-	//cv::waitKey(0);
-
-    return 0;
+    for(int num=0; num<result.size(); num++){
+        fprintf(file,"%f\n",result[num]);
+    }
+		
+	return 0;
 
 }
 

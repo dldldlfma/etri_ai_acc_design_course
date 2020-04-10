@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./conv_test ../test_data/1.txt
+echo "result size" 
+cat conv_result.txt |wc -l
+
