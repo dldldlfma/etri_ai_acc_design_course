@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	Conv conv1(1,6,5);
 	Pool pool1(2);
 	Conv conv2(6,16,5);
-	Pool pool2(2);
+	Pool pool2(2,1);
 	Fc fc1(256, 84);
 	Fc fc2(84, 10);
 
@@ -79,6 +79,8 @@ int main(int argc, char* argv[])
 	}
 	cout<<endl;
 	*/
+
+	cout<<"calc start"<<endl;
 
 	Mat3D conv1_out = conv1.forward(mnist_input_test);
 	//Mat_check(conv1_out);

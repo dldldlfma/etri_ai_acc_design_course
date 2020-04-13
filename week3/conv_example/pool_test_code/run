@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./pool_test ../test_data/1.txt
+echo "result size" 
+cat pool_result.txt |wc -l
+

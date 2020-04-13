@@ -10,4 +10,3 @@ conv_test_code.o: conv_test_code.cpp
 
 conv.o: ../conv.cpp
 	g++ -c ../conv.cpp $(LIBS)
-
